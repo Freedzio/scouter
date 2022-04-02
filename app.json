@@ -1,0 +1,33 @@
+{
+	"expo": {
+		"scheme": "scouterwislaplock",
+		"name": "Scouter Wisła Płock",
+		"slug": "scouter-wisla-plock",
+		"version": "1.0.0",
+		"orientation": "portrait",
+		"icon": "./assets/logo.png",
+		"splash": {
+			"image": "./assets/logo.png",
+			"resizeMode": "contain",
+			"backgroundColor": "#ffffff"
+		},
+		"updates": {
+			"fallbackToCacheTimeout": 0
+		},
+		"assetBundlePatterns": ["**/*"],
+		"ios": {
+			"bundleIdentifier": "scouterwislaplock",
+			"supportsTablet": true
+		},
+		"android": {
+			"adaptiveIcon": {
+				"foregroundImage": "./assets/logo.png",
+				"backgroundColor": "#FFFFFF"
+			},
+			"package": "com.freedzio.scouterwislaplock"
+		},
+		"web": {
+			"favicon": "./assets/logo.png"
+		}
+	}
+}

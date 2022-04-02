@@ -1,0 +1,16 @@
+{
+	"My React Functional Component": {
+		"prefix": "rfc",
+		"body": [
+			"import React from 'react';",
+			"",
+			"type Props = {",
+			"};",
+			"",
+			"export const $1: React.FC<Props> = () => {",
+			"  return $2;",
+			"};",
+			""
+		]
+	}
+}
