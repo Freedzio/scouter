@@ -1,11 +1,13 @@
 import { useNavigation } from '@react-navigation/native';
 import React, { useEffect } from 'react';
-import { Alert, BackHandler, Dimensions, Text, View } from 'react-native';
-import { ActivityIndicator, Colors } from 'react-native-paper';
+import { Alert, Dimensions, Text, View } from 'react-native';
+import { ActivityIndicator } from 'react-native-paper';
 
-type Props = {};
+type Props = {
+	title?: string;
+};
 
-export const LoaderSpinner: React.FC<Props> = () => {
+export const LoaderSpinner: React.FC<Props> = ({ title }) => {
 	const { height } = Dimensions.get('window');
 
 	const navigation = useNavigation();
@@ -27,7 +29,7 @@ export const LoaderSpinner: React.FC<Props> = () => {
 	return (
 		<View style={{ height }}>
 			<Text style={{ fontSize: 40, textAlign: 'center', marginVertical: 30 }}>
-				Zapisuję...
+				{title ?? 'Zapisuję...'}
 			</Text>
 			<ActivityIndicator size={300} animating={true} />
 		</View>

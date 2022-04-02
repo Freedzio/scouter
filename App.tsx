@@ -29,19 +29,21 @@ import { saveDraft } from './draft-handling/save-draft';
 import { uploadFile } from './draft-handling/upload-file';
 import { UserStatusDto } from './common/models/user-status.dto';
 import { TestView } from './views/test/test.view';
+import { VeryfyingUserView } from './views/veryfying-user.view';
 
 // labelki z forualrza i worda w jakiś enum wrzucić
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-	const [authorized, setAuthorized] = useState(false);
+	const [authorized, setAuthorized] = useState<boolean>();
 	const [authToken, setAuthToken] = useState('');
 	const [expirationTimestamp, setExpirationTimestamp] = useState(
 		dayjs().unix()
 	);
 
 	const [clubs, setClubs] = useState<ClubsEnum[]>([]);
+	const [error, setError] = useState(false);
 
 	const [request, response, promptAsync] = Google.useAuthRequest({
 		expoClientId: process.env.OAUTH_WEB_ID,
@@ -153,7 +155,8 @@ const App = () => {
 	const hasAccessToForms = (club: ClubsEnum) =>
 		clubs.includes(club) || clubs.includes(ClubsEnum.ADMIN);
 
-	const hasAccessToApp = authorized && clubs.length > 0;
+	const hasAccessToApp = authorized === true && clubs.length > 0;
+	const shouldShowSpinner = authorized === undefined;
 
 	return (
 		<PaperProvider theme={{ ...DefaultTheme, dark: false }}>
@@ -175,6 +178,12 @@ const App = () => {
 							headerShown: false
 						}}
 					>
+						{shouldShowSpinner && (
+							<Stack.Screen
+								name={ViewsEnum.VERYFYING}
+								component={VeryfyingUserView}
+							/>
+						)}
 						{hasAccessToApp === false && (
 							<Stack.Screen
 								name={ViewsEnum.UNAUTHORIZED}
