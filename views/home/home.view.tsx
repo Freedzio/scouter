@@ -5,7 +5,8 @@ import {
 	Text,
 	StyleSheet,
 	ToastAndroid,
-	Dimensions
+	Dimensions,
+	Alert
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ScrollWrapper } from '../../common/components/scroll-wrapper/scroll-wrapper.component';
@@ -67,6 +68,7 @@ export const HomeView: React.FC<Props> = () => {
 
 	const [drafts, setDrafts] = useState<string[]>([]);
 	const [fabOpen, setFabOpen] = useState(false);
+	const [draftToDelete, setDraftToDelete] = useState('');
 
 	const height = useHeight();
 
@@ -111,6 +113,26 @@ export const HomeView: React.FC<Props> = () => {
 		ToastAndroid.show('Usunięto wszystkie drafty', 2000);
 	};
 
+	const deleteDraft = (draftKey: string) => {
+		AsyncStorage.removeItem(draftKey);
+		setDrafts(drafts.filter((d) => d !== draftKey));
+	};
+
+	const onLongPress = (draftKey: string) => {
+		Alert.alert('Usunąć?', `Czy na pewno chcesz usunąć draft ${draftKey}?`, [
+			{
+				text: 'Tak',
+				style: 'destructive',
+				onPress: () => deleteDraft(draftKey)
+			},
+			{
+				text: 'Nie',
+				style: 'cancel',
+				onPress: () => {}
+			}
+		]);
+	};
+
 	return (
 		<View style={{ height }}>
 			<ScrollWrapper>
@@ -118,6 +140,7 @@ export const HomeView: React.FC<Props> = () => {
 					{drafts.map((d) => (
 						<Button
 							onPress={() => onDraftPress(d)}
+							onLongPress={() => onLongPress(d)}
 							mode='contained'
 							key={d}
 							style={{
