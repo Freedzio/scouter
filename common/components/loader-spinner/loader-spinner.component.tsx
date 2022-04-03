@@ -7,23 +7,27 @@ type Props = {
 	title?: string;
 };
 
+const showAlert = (e: any) => {
+	e.preventDefault();
+
+	Alert.alert('Poczekaj', 'Trwa tworzenie i zapisywanie dokumentu', [
+		{
+			text: 'OK',
+			style: 'default',
+			onPress: () => {}
+		}
+	]);
+};
+
 export const LoaderSpinner: React.FC<Props> = ({ title }) => {
 	const { height } = Dimensions.get('window');
 
 	const navigation = useNavigation();
 
 	useEffect(() => {
-		navigation.addListener('beforeRemove', (e) => {
-			e.preventDefault();
+		navigation.addListener('beforeRemove', showAlert);
 
-			Alert.alert('Poczekaj', 'Trwa tworzenie i zapisywanie dokumentu', [
-				{
-					text: 'OK',
-					style: 'default',
-					onPress: () => {}
-				}
-			]);
-		});
+		return navigation.removeListener('beforeRemove', showAlert);
 	}, [navigation]);
 
 	return (

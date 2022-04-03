@@ -26,7 +26,7 @@ type Route = Props['route'];
 type Navigation = Props['navigation'];
 
 export const WislaPlockSingularFormView: React.FC<Props> = () => {
-	const { handleUpload, saveDraft, deleteDraft, hasAccessToForms } = useApp();
+	const { handleUpload, saveDraft, deleteDraft } = useApp();
 
 	const [datepickerOpen, setDatepickerOpen] = useState(false);
 	const [prevDate, setPrevDate] = useState<Date>();
