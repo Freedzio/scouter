@@ -49,9 +49,9 @@ export const uploadFile = async (
 
 		const emailUrl = `mailto:${email}?${query},`;
 
-		goHome();
-
 		Linking.openURL(emailUrl);
+
+		goHome();
 	} catch (e) {
 		const stringifiedError = JSON.stringify(e, null, 2);
 		ToastAndroid.show(stringifiedError, 10000);

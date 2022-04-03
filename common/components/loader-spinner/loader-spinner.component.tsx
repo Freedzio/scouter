@@ -7,27 +7,33 @@ type Props = {
 	title?: string;
 };
 
-const showAlert = (e: any) => {
-	e.preventDefault();
-
-	Alert.alert('Poczekaj', 'Trwa tworzenie i zapisywanie dokumentu', [
-		{
-			text: 'OK',
-			style: 'default',
-			onPress: () => {}
-		}
-	]);
-};
-
 export const LoaderSpinner: React.FC<Props> = ({ title }) => {
+	const showAlert = (e: any) => {
+		e.preventDefault();
+
+		Alert.alert(
+			'Poczekaj',
+			'Trwa tworzenie i zapisywanie dokumentu. Możesz utracić w ten sposób dane.',
+			[
+				{
+					text: 'OK',
+					style: 'default',
+					onPress: () => {}
+				},
+				{
+					text: 'Podejmuję ryzyko',
+					style: 'destructive',
+					onPress: () => navigation.dispatch(e.data.action)
+				}
+			]
+		);
+	};
 	const { height } = Dimensions.get('window');
 
 	const navigation = useNavigation();
 
 	useEffect(() => {
 		navigation.addListener('beforeRemove', showAlert);
-
-		return navigation.removeListener('beforeRemove', showAlert);
 	}, [navigation]);
 
 	return (
