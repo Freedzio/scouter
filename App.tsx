@@ -3,13 +3,17 @@ import * as GoogleSignIn from 'expo-google-sign-in';
 import Constants from 'expo-constants';
 import { Document, Packer } from 'docx';
 import React, { useEffect, useState } from 'react';
-import { ToastAndroid, Platform, Linking, Dimensions } from 'react-native';
-import QueryString from 'qs';
+import {
+	ToastAndroid,
+	Platform,
+	Linking,
+	Dimensions,
+	Alert
+} from 'react-native';
 import { WislaPlockSingularFormView } from './views/wisla-plock/singular-form/wisla-plock-singular-form.view';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
 import { fetchGoogle } from './common/fetch-google/fetch-google';
 import { endpoints } from './common/fetch-google/endpoints';
-import { Base64 } from 'js-base64';
 import dayjs from 'dayjs';
 import { TokenResponse } from 'expo-auth-session';
 import { StatusBar } from 'expo-status-bar';
@@ -18,8 +22,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { HomeView } from './views/home/home.view';
 import { AppProvider } from './app.context';
-import { DraftData } from './common/models/draft-types.type';
-import { getDraftKey } from './common/storage/get-draft-key';
 import { ViewsEnum } from './common/enums/views.enum';
 import { UnauthorizedView } from './views/unauthorized/unauthorized.view';
 import { ClubsEnum } from './common/enums/clubs.enum';
@@ -29,7 +31,9 @@ import { saveDraft } from './draft-handling/save-draft';
 import { uploadFile } from './draft-handling/upload-file';
 import { UserStatusDto } from './common/models/user-status.dto';
 import { TestView } from './views/test/test.view';
-import { VeryfyingUserView } from './views/veryfying-user.view';
+import { VeryfyingUserView } from './views/veryfying/veryfying-user.view';
+import { WelcomeView } from './views/welcome/welcome.view';
+import { OFFLINE_CLUBS_KEY } from './common/offline-clubs.key';
 
 // labelki z forualrza i worda w jakiś enum wrzucić
 
@@ -37,13 +41,14 @@ const Stack = createNativeStackNavigator();
 
 const App = () => {
 	const [authorized, setAuthorized] = useState<boolean>();
+	const [offlineMode, setOfflineMode] = useState<boolean>();
 	const [authToken, setAuthToken] = useState('');
 	const [expirationTimestamp, setExpirationTimestamp] = useState(
 		dayjs().unix()
 	);
 
 	const [clubs, setClubs] = useState<ClubsEnum[]>([]);
-	const [error, setError] = useState(false);
+	// const [error, setError] = useState(false);
 
 	const [request, response, promptAsync] = Google.useAuthRequest({
 		expoClientId: process.env.OAUTH_WEB_ID,
@@ -75,6 +80,10 @@ const App = () => {
 		if (apiResponse.ok) {
 			const status: UserStatusDto = await apiResponse.json();
 			setAuthorized(status.active);
+			await AsyncStorage.setItem(
+				OFFLINE_CLUBS_KEY,
+				JSON.stringify(status.clubs)
+			);
 			setClubs(status.clubs);
 		}
 	};
@@ -98,6 +107,7 @@ const App = () => {
 			} else {
 				setAuthToken('');
 				setAuthorized(false);
+				setOfflineMode(false);
 				ToastAndroid.show('Nie udało się połączyć z kontem Google', 5000);
 			}
 		} else {
@@ -126,6 +136,7 @@ const App = () => {
 			} else {
 				setAuthToken('');
 				setAuthorized(false);
+				setOfflineMode(false);
 				ToastAndroid.show('Nie udało się połączyć z kontem Google', 5000);
 			}
 		}
@@ -142,20 +153,33 @@ const App = () => {
 	) => {
 		if (shouldAuth()) {
 			const token = await login();
-			uploadFile(doc as any, fileName, token, goHome);
+
+			if (!!token) uploadFile(doc as any, fileName, token, goHome);
+			else setAuthorized(false);
 		} else {
 			uploadFile(doc as any, fileName, authToken, goHome);
 		}
 	};
 
-	useEffect(() => {
-		if ((!!request && isExpo) || !isExpo) login();
-	}, [request]);
+	const handleOfflineMode = async () => {
+		const clubs = await AsyncStorage.getItem(OFFLINE_CLUBS_KEY);
+		if (!!clubs) {
+			setClubs(JSON.parse(clubs));
+			setOfflineMode(true);
+		} else {
+			Alert.alert(
+				'Brak zapamiętanych klubów',
+				'Prawdopodobnie nie logowałeś się jeszcze do aplikacji'
+			);
+		}
+	};
 
 	const hasAccessToForms = (club: ClubsEnum) =>
 		clubs.includes(club) || clubs.includes(ClubsEnum.ADMIN);
 
-	const hasAccessToApp = authorized === true && clubs.length > 0;
+	const hasAccessToApp =
+		(authorized === true || offlineMode === true) && clubs.length > 0;
+
 	const shouldShowSpinner = authorized === undefined;
 
 	return (
@@ -168,7 +192,9 @@ const App = () => {
 					authToken,
 					backgroundStyle,
 					expirationTimestamp,
-					hasAccessToForms
+					hasAccessToForms,
+					login,
+					handleOfflineMode
 				}}
 			>
 				<StatusBar translucent={false} backgroundColor={'white'} />
@@ -178,17 +204,27 @@ const App = () => {
 							headerShown: false
 						}}
 					>
-						{shouldShowSpinner && (
-							<Stack.Screen
-								name={ViewsEnum.VERYFYING}
-								component={VeryfyingUserView}
-							/>
-						)}
 						{hasAccessToApp === false && (
-							<Stack.Screen
-								name={ViewsEnum.UNAUTHORIZED}
-								component={UnauthorizedView}
-							/>
+							<>
+								{authorized !== false && (
+									<>
+										<Stack.Screen
+											name={ViewsEnum.WELCOME}
+											component={WelcomeView}
+										/>
+										<Stack.Screen
+											name={ViewsEnum.VERYFYING}
+											component={VeryfyingUserView}
+										/>
+									</>
+								)}
+								{authorized === false && (
+									<Stack.Screen
+										name={ViewsEnum.UNAUTHORIZED}
+										component={UnauthorizedView}
+									/>
+								)}
+							</>
 						)}
 						{hasAccessToApp === true && (
 							<>

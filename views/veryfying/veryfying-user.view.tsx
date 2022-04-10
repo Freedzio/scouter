@@ -1,7 +1,7 @@
 import React from 'react';
 import { Text, View } from 'react-native';
 import { ActivityIndicator } from 'react-native-paper';
-import { useHeight } from '../common/hooks/use-height.hook';
+import { useHeight } from '../../common/hooks/use-height.hook';
 
 type Props = {};
 

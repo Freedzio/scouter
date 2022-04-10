@@ -15,6 +15,8 @@ export interface AppContext {
 	saveDraft: (data: DraftData) => void;
 	deleteDraft: (data: DraftData) => void;
 	hasAccessToForms: (club: ClubsEnum) => boolean;
+	login: () => Promise<string>;
+	handleOfflineMode: () => Promise<void>;
 }
 
 const AppContext = createContext<AppContext | null>(null);

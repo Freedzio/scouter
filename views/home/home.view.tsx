@@ -21,6 +21,7 @@ import { DraftData } from '../../common/models/draft-types.type';
 import { useHeight } from '../../common/hooks/use-height.hook';
 import { useApp } from '../../app.context';
 import { ClubsEnum } from '../../common/enums/clubs.enum';
+import { OFFLINE_CLUBS_KEY } from '../../common/offline-clubs.key';
 
 type Props = {
 	navigation: any;
@@ -81,7 +82,7 @@ export const HomeView: React.FC<Props> = () => {
 	const getAllDrafts = async () => {
 		try {
 			const allDrafts = await AsyncStorage.getAllKeys();
-			setDrafts(allDrafts);
+			setDrafts(allDrafts.filter((d) => d !== OFFLINE_CLUBS_KEY));
 		} catch (e) {
 			console.log(e);
 		}

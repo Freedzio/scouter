@@ -1,4 +1,6 @@
 export enum ViewsEnum {
+	WELCOME = 'WELCOME',
+
 	UNAUTHORIZED = 'UNAUTHORIZED',
 	VERYFYING = 'VERYFYING',
 

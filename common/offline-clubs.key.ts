@@ -1,0 +1,1 @@
+export const OFFLINE_CLUBS_KEY = 'OFFLINE_CLUBS';
