@@ -3,7 +3,7 @@
 		"scheme": "scouter",
 		"name": "Scouter",
 		"slug": "scouter",
-		"owner": "Scouter, Inc.",
+		"owner": "scouter",
 		"version": "1.0.0",
 		"orientation": "portrait",
 		"icon": "./assets/logo.png",
