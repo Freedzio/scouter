@@ -90,56 +90,56 @@ const App = () => {
 
 	const login = async () => {
 		let token = '';
-		if (isExpo) {
-			const authResponse = await promptAsync();
+		// if (isExpo) {
+		const authResponse = await promptAsync();
 
-			if (authResponse.type === 'success') {
-				ToastAndroid.show('Połączono z kontem Google', 5000);
-				token = `${authResponse.authentication?.tokenType} ${authResponse.authentication?.accessToken}`;
-				const { expiresIn } = authResponse.authentication as TokenResponse;
+		if (authResponse.type === 'success') {
+			ToastAndroid.show('Połączono z kontem Google', 5000);
+			token = `${authResponse.authentication?.tokenType} ${authResponse.authentication?.accessToken}`;
+			const { expiresIn } = authResponse.authentication as TokenResponse;
 
-				const { email } = await fetchGoogle(endpoints.userInfo, token);
+			const { email } = await fetchGoogle(endpoints.userInfo, token);
 
-				await checkUser(email);
+			await checkUser(email);
 
-				setAuthToken(token);
-				setExpirationTimestamp(dayjs().unix() + (expiresIn as number));
-			} else {
-				setAuthToken('');
-				setAuthorized(false);
-				setOfflineMode(false);
-				ToastAndroid.show('Nie udało się połączyć z kontem Google', 5000);
-			}
+			setAuthToken(token);
+			setExpirationTimestamp(dayjs().unix() + (expiresIn as number));
 		} else {
-			await GoogleSignIn.initAsync({
-				scopes: ['https://www.googleapis.com/auth/drive.file'],
-				clientId:
-					Platform.OS === 'ios'
-						? process.env.OAUTH_IOS_ID
-						: process.env.OAUTH_ANDROID_ID
-			});
-
-			const authResponse = await GoogleSignIn.signInAsync();
-
-			if (authResponse.type === 'success') {
-				ToastAndroid.show('Połączono z kontem Google', 5000);
-				token = `Bearer ${authResponse.user?.auth?.accessToken}`;
-
-				const { email } = await fetchGoogle(endpoints.userInfo, token);
-
-				await checkUser(email);
-
-				setAuthToken(token);
-				setExpirationTimestamp(
-					authResponse.user?.auth?.accessTokenExpirationDate as number
-				);
-			} else {
-				setAuthToken('');
-				setAuthorized(false);
-				setOfflineMode(false);
-				ToastAndroid.show('Nie udało się połączyć z kontem Google', 5000);
-			}
+			setAuthToken('');
+			setAuthorized(false);
+			setOfflineMode(false);
+			ToastAndroid.show('Nie udało się połączyć z kontem Google', 5000);
 		}
+		// } else {
+		// 	await GoogleSignIn.initAsync({
+		// 		scopes: ['https://www.googleapis.com/auth/drive.file'],
+		// 		clientId:
+		// 			Platform.OS === 'ios'
+		// 				? process.env.OAUTH_IOS_ID
+		// 				: process.env.OAUTH_ANDROID_ID
+		// 	});
+
+		// 	const authResponse = await GoogleSignIn.signInAsync();
+
+		// 	if (authResponse.type === 'success') {
+		// 		ToastAndroid.show('Połączono z kontem Google', 5000);
+		// 		token = `Bearer ${authResponse.user?.auth?.accessToken}`;
+
+		// 		const { email } = await fetchGoogle(endpoints.userInfo, token);
+
+		// 		await checkUser(email);
+
+		// 		setAuthToken(token);
+		// 		setExpirationTimestamp(
+		// 			authResponse.user?.auth?.accessTokenExpirationDate as number
+		// 		);
+		// 	} else {
+		// 		setAuthToken('');
+		// 		setAuthorized(false);
+		// 		setOfflineMode(false);
+		// 		ToastAndroid.show('Nie udało się połączyć z kontem Google', 5000);
+		// 	}
+		// }
 
 		return token;
 	};
